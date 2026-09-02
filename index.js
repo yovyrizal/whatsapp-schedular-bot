@@ -1,9 +1,11 @@
 import makeWASocket, { DisconnectReason, useMultiFileAuthState } from '@whiskeysockets/baileys'
 import { Boom } from '@hapi/boom'
+import { GoogleGenAI } from "@google/genai";
 import qrcode from 'qrcode-terminal'
 import "dotenv/config"
 
 const REMOTE_JID = process.env.REMOTE_JID;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 async function connectToWhatsApp() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys')
@@ -51,7 +53,16 @@ async function connectToWhatsApp() {
             
             await delay(1000 + Math.random() * 2000)
 
-            await sock.sendMessage(jid, { text: 'apa bang!' })
+            // AI Generate
+            const ai = new GoogleGenAI({apiKey: GEMINI_API_KEY});
+
+            const response = await ai.interactions.create({
+                model: "gemini-3.1-flash-lite",
+                input: `${m.message.conversation}`,
+            });
+            
+            // Send Message
+            await sock.sendMessage(jid, { text: response.output_text })
             await sock.sendPresenceUpdate('paused', jid)
         }
     })
