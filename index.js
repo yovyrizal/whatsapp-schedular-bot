@@ -4,8 +4,10 @@ import { GoogleGenAI } from "@google/genai";
 import qrcode from 'qrcode-terminal'
 import "dotenv/config"
 
+// Internal Import
+
+import chatResponse from './src/gemini/chatResponse.js';
 const REMOTE_JID = process.env.REMOTE_JID;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 async function connectToWhatsApp() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys')
@@ -43,26 +45,20 @@ async function connectToWhatsApp() {
             if (REMOTE_JID !== jid) continue
             console.log(JSON.stringify(m, undefined, 2))
 
-            console.log('replying to', jid)
-
+            
             await delay(500 + Math.random() * 1500)
             await sock.readMessages([m.key])
-
+            
             await delay(1000 + Math.random() * 2000)
             await sock.sendPresenceUpdate('composing', jid)
             
             await delay(1000 + Math.random() * 2000)
-
-            // AI Generate
-            const ai = new GoogleGenAI({apiKey: GEMINI_API_KEY});
-
-            const response = await ai.interactions.create({
-                model: "gemini-3.1-flash-lite",
-                input: `${m.message.conversation}`,
-            });
             
             // Send Message
-            await sock.sendMessage(jid, { text: response.output_text })
+            const responseAI = await chatResponse(m.message.conversation)
+            
+            await sock.sendMessage(jid, { text: responseAI })
+            console.log('replying to', jid)
             await sock.sendPresenceUpdate('paused', jid)
         }
     })
