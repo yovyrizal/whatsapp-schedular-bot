@@ -17,7 +17,9 @@
     "@hapi/boom": "^10.0.1",
     "@whiskeysockets/baileys": "^7.0.0-rc14",
     "dotenv": "^17.4.2",
+    "googleapis": "^178.0.0",
     "nodemon": "^3.1.14",
+    "open": "^11.0.2",
     "qrcode-terminal": "^0.12.0"
   }
 }
