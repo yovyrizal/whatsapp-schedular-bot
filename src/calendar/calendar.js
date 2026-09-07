@@ -1,9 +1,7 @@
 import { google } from "googleapis"
-import { oauth2client } from "./googleAuth.js"
+import { initGoogleAuth, oauth2client } from "./googleAuth.js"
 
 const calendar = google.calendar({ version: "v3", auth: oauth2client })
-
-createEvent("test", "2026-09-06T15:00:00+07:00", "2026-09-06T15:00:05+07:00", "ini cuma test")
 
 async function createEvent({ title, start_datetime, end_datetime, desc}) {
     const event = {
@@ -11,17 +9,17 @@ async function createEvent({ title, start_datetime, end_datetime, desc}) {
         description: desc || undefined,
         start: {
             dateTime: start_datetime,
-            timezone: "Asia/Jakarta",
+            timeZone: "Asia/Jakarta",
         },
         end: {
             dateTime: end_datetime,
-            timezone: "Asia/Jakarta",
+            timeZone: "Asia/Jakarta",
         }
     }
 
     try{
         const response = await calendar.events.insert({
-            calendarId: "Primary",
+            calendarId: "primary",
             requestBody: event,
         })
 
@@ -30,3 +28,12 @@ async function createEvent({ title, start_datetime, end_datetime, desc}) {
         console.error(err)
     }
 }
+
+// Testing
+async function main(){
+    await initGoogleAuth();
+
+    createEvent({summary: "test", start_datetime: "2026-09-08T15:00:00+07:00", end_datetime: "2026-09-08T15:00:05+07:00", desc: "ini cuma test"})
+}
+
+main()
